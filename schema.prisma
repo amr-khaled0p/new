@@ -1,0 +1,112 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role { STUDENT INSTRUCTOR ADMIN }
+
+model User {
+  id        String  @id @default(cuid())
+  email     String  @unique
+  name      String?
+  role      Role    @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profile   StudentProfile?
+}
+
+model University {
+  id    String @id @default(cuid())
+  name  String @unique
+  colleges College[]
+}
+
+model College {
+  id           String @id @default(cuid())
+  name         String
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  universityId String
+  programs     Program[]
+  @@unique([name, universityId])
+}
+
+model Program {
+  id        String @id @default(cuid())
+  name      String
+  college   College @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  collegeId String
+  courses   Course[]
+  @@unique([name, collegeId])
+}
+
+model StudentProfile {
+  id          String @id @default(cuid())
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String @unique
+  university  University? @relation(fields: [universityId], references: [id])
+  universityId String?
+  college     College?    @relation(fields: [collegeId], references: [id])
+  collegeId    String?
+  program     Program?    @relation(fields: [programId], references: [id])
+  programId    String?
+  yearLevel   Int?
+}
+
+model Course {
+  id        String @id @default(cuid())
+  code      String
+  title     String
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  programId String
+  units     Unit[]
+  @@unique([code, programId])
+}
+
+model Unit {
+  id       String  @id @default(cuid())
+  title    String
+  course   Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+  lessons  Lesson[]
+}
+
+model Lesson {
+  id      String @id @default(cuid())
+  title   String
+  bodyMD  String
+  unit    Unit    @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId  String
+}
+
+model Quiz {
+  id      String @id @default(cuid())
+  title   String
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+  questions Question[]
+}
+
+model Question {
+  id      String @id @default(cuid())
+  kind    String
+  text    String
+  options Json?
+  answer  Json
+  quiz    Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId  String
+}
+
+model Attempt {
+  id       String @id @default(cuid())
+  quiz     Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  responses Json
+  score     Int?
+  createdAt DateTime @default(now())
+}
