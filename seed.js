@@ -1,3 +1,4 @@
+// prisma/seed.js
 const { PrismaClient } = require('@prisma/client');
 const db = new PrismaClient();
 
@@ -29,9 +30,4 @@ async function main() {
   console.log("Seed done.");
 }
 
-main().catch(e => {
-  console.error(e);
-  process.exit(1);
-}).finally(async () => {
-  await db.$disconnect();
-});
+main().finally(() => db.$disconnect());
