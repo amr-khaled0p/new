@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
@@ -10,23 +11,23 @@ generator client {
 enum Role { STUDENT INSTRUCTOR ADMIN }
 
 model User {
-  id        String  @id @default(cuid())
-  email     String  @unique
+  id        String   @id @default(cuid())
+  email     String   @unique
   name      String?
-  role      Role    @default(STUDENT)
+  role      Role     @default(STUDENT)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   profile   StudentProfile?
 }
 
 model University {
-  id    String @id @default(cuid())
-  name  String @unique
+  id       String   @id @default(cuid())
+  name     String   @unique
   colleges College[]
 }
 
 model College {
-  id           String @id @default(cuid())
+  id           String    @id @default(cuid())
   name         String
   university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
   universityId String
@@ -35,7 +36,7 @@ model College {
 }
 
 model Program {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   name      String
   college   College @relation(fields: [collegeId], references: [id], onDelete: Cascade)
   collegeId String
@@ -44,9 +45,9 @@ model Program {
 }
 
 model StudentProfile {
-  id          String @id @default(cuid())
-  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String @unique
+  id          String      @id @default(cuid())
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String      @unique
   university  University? @relation(fields: [universityId], references: [id])
   universityId String?
   college     College?    @relation(fields: [collegeId], references: [id])
@@ -57,7 +58,7 @@ model StudentProfile {
 }
 
 model Course {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   code      String
   title     String
   program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
@@ -78,21 +79,21 @@ model Lesson {
   id      String @id @default(cuid())
   title   String
   bodyMD  String
-  unit    Unit    @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unit    Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId  String
 }
 
 model Quiz {
-  id      String @id @default(cuid())
-  title   String
-  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId String
+  id        String     @id @default(cuid())
+  title     String
+  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId  String
   questions Question[]
 }
 
 model Question {
   id      String @id @default(cuid())
-  kind    String
+  kind    String // "MCQ" أو "TF"
   text    String
   options Json?
   answer  Json
@@ -101,11 +102,11 @@ model Question {
 }
 
 model Attempt {
-  id       String @id @default(cuid())
-  quiz     Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  quizId   String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   String
+  id        String   @id @default(cuid())
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
   responses Json
   score     Int?
   createdAt DateTime @default(now())
